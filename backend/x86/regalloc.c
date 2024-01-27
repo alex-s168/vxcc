@@ -1,6 +1,6 @@
 #include "backend.h"
 #include "regalloc.h"
-#include "string.h"
+#include <string.h>
 
 // TODO: should promote location_t (on every operation, check.) ?
 
@@ -312,6 +312,13 @@ reg_with_owner_internal_t get_best_reg(env_t env,
 }
 
 // TODO: float + mmx problem
+
+reg_t alloc_reg(env_t env,
+                datatype_t type,
+                size_t bit_size,
+                size_t additional) {
+
+}
 
 reg_t alloc_reg_force(env_t env,
                       datatype_t type,

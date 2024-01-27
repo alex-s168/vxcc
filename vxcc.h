@@ -67,7 +67,7 @@ typedef struct {
     };
 } location_t;
 
-inline
+static inline
 datatype_t location_datatype(location_t l) {
     // yes this works because all elements in the union start with the datatype
     return l.reg.type;

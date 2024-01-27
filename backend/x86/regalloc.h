@@ -36,6 +36,11 @@ typedef struct {
     reg_with_owner_internal_t reg_sse [REG_SSE_COUNT];
 } regalloc_state_t;
 
+reg_t alloc_reg(env_t env,
+                datatype_t type,
+                size_t bit_size,
+                size_t additional);
+
 reg_t alloc_reg_force(env_t env,
                       datatype_t type,
                       size_t bit_size,

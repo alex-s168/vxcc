@@ -10,8 +10,8 @@ void emit_str(env_t env, char *str) {
 static void parseTargetStr(env_t *env, backend_data_t *bd) {
     /* extra target str */
     char *last = 0;
-    for (size_t i = 0; i < (size_t) env->target_str_extra; i ++) {
-        char *cstr = &env->target_str_extra[i];
+    char *cstr = env->target_str_extra;
+    while (*cstr != '\0') {
         if (cstr[0] == ';') {
             cstr[0] = '\0';
 
@@ -35,6 +35,7 @@ static void parseTargetStr(env_t *env, backend_data_t *bd) {
 
             last = cstr + 1;
         }
+        cstr ++;
     }
 }
 

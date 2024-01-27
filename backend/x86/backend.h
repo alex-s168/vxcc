@@ -25,7 +25,7 @@ typedef struct {
     regalloc_state_t regalloc;
 } backend_data_t;
 
-void assert(env_t env, bool test, char *message) {
+static void assert(env_t env, bool test, char *message) {
     if (!test) {
         errbuilder_t e = env.start_error();
         e.text(e.impl_data, message);

@@ -9,4 +9,5 @@ add_executable(vxcc main.c
         vxcc_frontend.h
         backend/x86/backend.c
         backend/x86/backend.h
-        backend/x86/regalloc.c)
+        backend/x86/regalloc.c
+        backend/x86/test.c)
