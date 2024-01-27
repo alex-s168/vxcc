@@ -1,7 +1,7 @@
 #include "../backend.h"
 
 static void emit_size(env_t env, size_t bits) {
-    size_t bits_8 = bits + (8 - bits % 8);
+    size_t bits_8 = up8(bits);
     size_t bytes = bits_8 / 8;
 
     switch (bytes) {
@@ -33,7 +33,7 @@ void emit_loc(env_t env, location_t loc) {
         case LT_ADDR_ABS: {
             emit_size(env, loc.addr_abs.bit_size);
             char buf[35];
-            sprintf(buf, "[%zu]", loc.addr_abs.addr);
+            sprintf(buf, "ptr [%zu]", loc.addr_abs.addr);
             emit_str(env, buf);
         }
         break;
@@ -46,12 +46,15 @@ void emit_loc(env_t env, location_t loc) {
         break;
 
         case LT_STACK: {
-            size_t sp = bd->stackalloc.sp;
-            size_t addr = loc.stack.abs_addr;
-            size_t offm = sp - addr;
             emit_size(env, loc.stack.bit_size);
             char buf[35];
-            sprintf(buf, "[sp - %zu]", offm);
+            size_t sp = bd->stackalloc.sp;
+            size_t addr = loc.stack.abs_addr;
+            if (sp > addr) {
+                sprintf(buf, "ptr [sp - %zu]", sp - addr);
+            } else {
+                sprintf(buf, "ptr [sp + %zu]", addr - sp);
+            }
             emit_str(env, buf);
         }
         break;

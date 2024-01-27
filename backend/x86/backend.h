@@ -66,4 +66,15 @@ static reg_t get_reg(reg_with_owner_internal_t *reg) {
 
 void emit_loc(env_t env, location_t loc);
 
+static inline
+size_t up8(size_t v) {
+    if (v == 0) {
+        return 0;
+    }
+
+    v --;
+    v += 8 - (v % 8);
+    return v;
+}
+
 #endif //VXCC_X86_BACKEND_H

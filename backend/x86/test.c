@@ -63,6 +63,63 @@ int main() {
 
 #undef ST_BOOL
 
+    location_t my_loc_a;
+    bool ok_a = alloc_reg(env, &my_loc_a, false, true, DT_UINT, 32, 32);
+    if (!ok_a) {
+        return 1;
+    }
+
+    location_t my_loc_b;
+    bool ok_b = alloc_reg(env, &my_loc_b, false, true, DT_UINT, 32, 32);
+    if (!ok_b) {
+        return 1;
+    }
+
+    move(env, &my_loc_a, &my_loc_b);
+
+    location_t my_st_loc_d;
+    allocate_stack(env, &my_st_loc_d, DT_UINT, 32, 32);
+
+    location_t my_st_loc_e;
+    allocate_stack(env, &my_st_loc_e, DT_UINT, 32, 32);
+
+    move(env, &my_loc_b, &my_st_loc_d);
+
+    location_t my_loc_f;
+    bool ok_f = alloc_reg(env, &my_loc_f, false, true, DT_UINT, 32, 32);
+    if (!ok_f) {
+        return 1;
+    }
+
+    move(env, &my_loc_f, &my_st_loc_e);
+
+    dealloc_reg(&my_loc_f);
+
+    dealloc_reg(&my_loc_b);
+
+    location_t my_loc_c;
+    bool ok_c = alloc_reg(env, &my_loc_c, false, true, DT_UINT, 32, 32);
+    if (!ok_c) {
+        return 1;
+    }
+
+    move(env, &my_loc_c, &my_loc_a);
+
+    deallocate_stack(&my_st_loc_e);
+
+    location_t my_st_loc_g;
+    allocate_stack(env, &my_st_loc_g, DT_UINT, 32, 32);
+
+    deallocate_stack(&my_st_loc_d);
+
+    move(env, &my_loc_c, &my_st_loc_g);
+
+    deallocate_stack(&my_st_loc_g);
+
+    dealloc_reg(&my_loc_c);
+
+    fclose(env.out_file);
+
     deinit(env);
     return 0;
 }
