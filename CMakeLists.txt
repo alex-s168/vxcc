@@ -14,4 +14,7 @@ add_executable(vxcc main.c
         backend/x86/regalloc/get_best_reg.c
         backend/x86/regalloc/reg_init.c
         backend/x86/stackalloc/stackalloc.c
-        backend/x86/stackalloc/stackalloc.h)
+        backend/x86/stackalloc/stackalloc.h
+        backend/x86/tempalloc.c
+        backend/x86/asm/emit_loc.c
+        backend/x86/op/move.c)

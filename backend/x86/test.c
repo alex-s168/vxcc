@@ -26,6 +26,7 @@ int main() {
     char *line = "fpu;mmx;sse1;sse2;";
     env.target_str_extra = line;
     env.start_error = err;
+    env.out_file = fopen("out.asm", "w");
     init(&env);
 
     printf("target configuration:\n");

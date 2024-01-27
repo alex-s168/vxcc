@@ -7,15 +7,22 @@
 #endif
 
 typedef struct {
+    bool deallocatable;
+    size_t abs_addr;
+} stackalloc_elem_t;
+
+typedef struct {
     size_t count;
+    stackalloc_elem_t *elements;
+
     size_t next_addr;
-    bool *deallocatable;
 } stackalloc_frame_t;
 
 typedef struct {
     size_t frames_count;
     size_t frames_alloc;
     stackalloc_frame_t *frames;
+    size_t sp;
 } stackalloc_state_t;
 
 bool allocate_stack(env_t env,

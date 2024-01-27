@@ -37,12 +37,14 @@ bool alloc_reg(env_t env,
     if (!can_be_used) {
         ASSERT(force);
 
-        reg->owner = dest; // so that allocate_compatible doesn't allocate our register
-        location_t *temp = allocate_compatible(&l);
-        move(env, temp, &l);
         location_t *old_owner = reg->owner;
-        *old_owner = *temp;
+        location_t temp;
+        (void) allocate_compatible(env, &temp, &l);
+        move(env, &temp, &l);
+        *old_owner = temp;
+        reg->owner = dest;
         *dest = l;
+
         return true;
     }
 

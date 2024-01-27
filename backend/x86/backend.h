@@ -64,4 +64,6 @@ static reg_t get_reg(reg_with_owner_internal_t *reg) {
 // assert only meant for code readability and debugging
 #define ASSERT(v) do {} while (0)
 
+void emit_loc(env_t env, location_t loc);
+
 #endif //VXCC_X86_BACKEND_H

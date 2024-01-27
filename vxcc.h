@@ -37,10 +37,10 @@ typedef struct {
     datatype_t type;
     size_t bit_size;
     size_t additional;
-    void *addr;
+    size_t addr;
 
     void *backend_data;
-} addr_t;
+} addr_abs_t;
 
 typedef struct {
     datatype_t type;
@@ -54,19 +54,26 @@ typedef struct {
 struct location_s;
 
 typedef struct {
-    size_t locations_len;
-    struct location_s *locations;
-
     datatype_t datatype;
     size_t combined_bit_size;
     size_t additional;
+
+    size_t locations_len;
+    struct location_s *locations;
 } combined_location_t;
+
+// TODO: refactor to use everywhere
+typedef struct {
+    datatype_t datatype;
+    size_t bit_size;
+    size_t additional;
+} metadata_t;
 
 typedef struct location_s {
     enum {
         LT_REG,
         LT_IMM,
-        LT_ADDR,
+        LT_ADDR_ABS,
         LT_STACK,
         LT_COMBINED
     } type;
@@ -74,9 +81,10 @@ typedef struct location_s {
     union {
         reg_t reg;
         imm_t imm;
-        addr_t addr;
+        addr_abs_t addr_abs;
         stack_t stack;
         combined_location_t combined;
+        metadata_t meta;
     };
 } location_t;
 

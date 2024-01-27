@@ -18,17 +18,19 @@ void XS init XE (env_t *);
 
 void XS deinit XE (env_t);
 
-location_t * XS allocate XE (int is_temp,
-                             int needs_arithm,
-                             datatype_t type,
-                             size_t bit_size,
-                             size_t additional,
-                             int align_bits, // -1 is automatic
-                             int pad_bits);  // -1 is automatic
+int XS allocate XE (env_t env,
+                    location_t *dest,
+                    int is_temp,
+                    int needs_arithm,
+                    datatype_t type,
+                    size_t bit_size,
+                    size_t additional,
+                    int align_bits, // -1 is automatic
+                    int pad_bits);  // -1 is automatic
 
-location_t * XS allocate_compatible XE (location_t *loc);
+int XS allocate_compatible XE (env_t env, location_t *dest, location_t *loc);
 
-void XS deallocate XE (location_t *loc);
+void XS deallocate XE (env_t env, location_t *loc);
 
 void XS move XE (env_t, location_t *dst, location_t *src);
 
