@@ -51,12 +51,24 @@ typedef struct {
     void *backend_data;
 } stack_t;
 
+struct location_s;
+
 typedef struct {
+    size_t locations_len;
+    struct location_s *locations;
+
+    datatype_t datatype;
+    size_t combined_bit_size;
+    size_t additional;
+} combined_location_t;
+
+typedef struct location_s {
     enum {
         LT_REG,
         LT_IMM,
         LT_ADDR,
-        LT_STACK
+        LT_STACK,
+        LT_COMBINED
     } type;
     void *backend_data;
     union {
@@ -64,6 +76,7 @@ typedef struct {
         imm_t imm;
         addr_t addr;
         stack_t stack;
+        combined_location_t combined;
     };
 } location_t;
 

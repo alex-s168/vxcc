@@ -43,6 +43,9 @@ void regalloc_init(env_t *env) {
     bd->regalloc.reg_fpu_used = false;
     bd->regalloc.reg_mmx_used = false;
 
+    bd->regalloc.to_promote_count = 0;
+    bd->regalloc.to_promote = NULL;
+
     memcpy(bd->regalloc.reg_gp,
            reg_gp_def,
            sizeof(reg_gp_def));

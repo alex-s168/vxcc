@@ -30,10 +30,10 @@ reg_with_owner_internal_t *get_best_reg(env_t env,
     // general purpose register
     bool gpr = (type == DT_UINT || type == DT_SINT);
 
-    // float vector (requires sse)
+    // float vector (requires sse 1)
     bool fvr = (type == DT_VEC_FLOAT);
 
-    // int vector (requires mmx or sse)
+    // int vector (requires mmx or sse 2)
     bool ivr = (type == DT_VEC_UINT || type == DT_VEC_SINT);
 
     if (gpr && bit_size > 32) {

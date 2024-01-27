@@ -50,6 +50,15 @@ static backend_data_t *get_bd(env_t env) {
     return (backend_data_t *) env.backend_data;
 }
 
+static reg_t get_reg(reg_with_owner_internal_t *reg) {
+    return (reg_t) {
+        .type = reg->reg.type,
+        .bit_size = reg->reg.additional,
+        .additional = reg->reg.additional,
+        .backend_data = reg,
+    };
+}
+
 // assert only meant for code readability
 #define ASSERT(v) do {} while (0)
 

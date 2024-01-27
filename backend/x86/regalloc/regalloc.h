@@ -34,17 +34,20 @@ typedef struct {
     bool reg_mmx_used;
 
     reg_with_owner_internal_t reg_sse [REG_SSE_COUNT];
+
+    location_t *to_promote_count;
+    location_t *to_promote;
 } regalloc_state_t;
 
-reg_t alloc_reg(env_t env,
-                datatype_t type,
-                size_t bit_size,
-                size_t additional);
+bool alloc_reg(env_t env,
+               location_t *dest,
+               bool force,
+               bool need_arithm,
+               datatype_t type,
+               size_t bit_size,
+               size_t additional);
 
-reg_t alloc_reg_force(env_t env,
-                      datatype_t type,
-                      size_t bit_size,
-                      size_t additional);
+void dealloc_reg(location_t *reg);
 
 reg_with_owner_internal_t *get_best_reg(env_t env,
                                        bool *exists,
@@ -59,8 +62,6 @@ reg_with_owner_internal_t *get_best_reg(env_t env,
                                        datatype_t type,
                                        size_t bit_size,
                                        size_t additional);
-
-void dealloc_reg(reg_t reg);
 
 void regalloc_init(env_t *env);
 
