@@ -8,6 +8,7 @@ bool alloc_reg(env_t env,
                datatype_t type,
                size_t bit_size,
                size_t additional) {
+
     bool exists;
     bool can_be_used;
     size_t similar_count;
@@ -27,11 +28,11 @@ bool alloc_reg(env_t env,
         return false;
     }
 
-    // TODO: __NO__
-    // **combined registers**
-    // aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    if (reg->reg.bit_size < bit_size) {
+        return false;
+    }
 
-    location_t l = { .type = LT_REG, .reg = get_reg(reg) };
+    location_t l = { .type = LT_REG, .reg = get_reg(reg), .backend_data = NULL };
 
     if (!can_be_used) {
         ASSERT(force);
@@ -41,12 +42,18 @@ bool alloc_reg(env_t env,
         location_t *old_owner = reg->owner;
         *old_owner = *temp;
         *dest = l;
+        reg->owner = dest;
         return true;
     }
 
     ASSERT(exists);
+
+    *dest = l;
+    reg->owner = dest;
+    return true;
 }
 
 void dealloc_reg(location_t *reg) {
-    // TODO: check for other locations if they should be promoted
+    reg_with_owner_internal_t *l = (reg_with_owner_internal_t *) reg->reg.backend_data;
+    l->owner = NULL;
 }
