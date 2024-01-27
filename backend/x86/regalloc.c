@@ -89,8 +89,8 @@ reg_with_owner_internal_t get_best_reg(env_t env,
                                        size_t additional) {
     /*
      mm registers (MMX) are on the floating point stack. BE CAREFUL
-     SSE added xmm registers (not on the floating point stack), that are unrelated to mm registers. NO INT OP
-     SSE2 allowed floating point operations for xmm registers.
+     SSE added xmm registers (not on the floating point stack), that are unrelated to mm registers. ONLY 32 BIT FP OP
+     SSE2 allowed 64 bit fp op and int op
      */
 
     backend_data_t *bd = env.backend_data;
@@ -111,8 +111,29 @@ reg_with_owner_internal_t get_best_reg(env_t env,
         gpr = false;
 
         if (need_arithm) {
-            *exists = false;
-            return (reg_with_owner_internal_t) {};
+            // maybe the target supports sse (which has support for 2x64 bit integers / register)
+
+            bool t_exists;
+            bool t_usable;
+            size_t t_similar_count;
+            reg_with_owner_internal_t *t_similar;
+
+            reg_with_owner_internal_t reg = get_best_reg(env,
+                                                         &t_exists,
+                                                         &t_usable,
+                                                         &t_similar_count,
+                                                         &t_similar,
+                                                         true,
+                                                         DT_VEC_UINT,
+                                                         bit_size,
+                                                         bit_size);
+
+            *exists = t_exists;
+            *can_be_used = t_usable;
+            *similar_count = t_similar_count;
+            *similar = t_similar;
+
+            return reg;
         }
 
         ivr = true;
@@ -179,12 +200,12 @@ reg_with_owner_internal_t get_best_reg(env_t env,
         return (reg_with_owner_internal_t) {};
     }
 
-    if (fvr && !bd->target.is_sse2) {
+    if (fvr && !bd->target.is_sse1) {
         *exists = false;
         return (reg_with_owner_internal_t) {};
     }
 
-    if (ivr && !(bd->target.is_mmx || bd->target.is_sse1)) {
+    if (ivr && !(bd->target.is_mmx || bd->target.is_sse2)) {
         *exists = false;
         return (reg_with_owner_internal_t) {};
     }
@@ -244,13 +265,33 @@ reg_with_owner_internal_t get_best_reg(env_t env,
 
     reg_with_owner_internal_t *found_but_not_usable = NULL;
 
-    if ((fvr || ivr) && bd->target.is_sse1) {
+    if ((fvr && bd->target.is_sse1) || ivr && bd->target.is_sse2) {
         assert(env, additional <= bit_size, "requested vector additional > bit_size");
 
-        // we __can__ fit weird sized values in our vectors, but we can't do math with them
-        if ((additional % 8 != 0 || additional < 8) && need_arithm) {
+        if (bit_size > 128) {
             *exists = false;
             return (reg_with_owner_internal_t) {};
+        }
+
+        // we __can__ fit weird sized values in our vectors, but we can't do math with them
+        if (need_arithm) {
+            if (fvr) {
+                if (bd->target.is_sse1 && !bd->target.is_sse2 && additional != 32) {
+                    *exists = false;
+                    return (reg_with_owner_internal_t) {};
+                }
+                if (bd->target.is_sse2 && !(additional == 64 || additional == 32)) {
+                    *exists = false;
+                    return (reg_with_owner_internal_t) {};
+                }
+            }
+            else { // ivr
+                ASSERT(bd->target.is_sse2);
+                if (additional > 64 || additional % 8 != 0) {
+                    *exists = false;
+                    return (reg_with_owner_internal_t) {};
+                }
+            }
         }
 
         *exists = true;
@@ -273,7 +314,14 @@ reg_with_owner_internal_t get_best_reg(env_t env,
 
     if (ivr && bd->target.is_mmx) {
         // we __can__ fit weird sized values in our vectors, but we can't do math with them
-        if ((additional % 8 != 0 || additional < 8) && need_arithm) {
+        // mmx can do either 1x64, 2x32, 4x16 or 8x8
+        if (need_arithm) {
+            if (bit_size > 64 || additional % 8 != 0 || additional > 32) {
+                *exists = false;
+                return (reg_with_owner_internal_t) {};
+            }
+        }
+        else if (bit_size > 64) {
             *exists = false;
             return (reg_with_owner_internal_t) {};
         }

@@ -23,7 +23,7 @@ int main() {
     env_t env = { 0 };
     // char line[1024];
     // scanf("%1023[^\n]", line);
-    char *line = "mmx;";
+    char *line = "mmx;sse1;sse2;";
     env.target_str_extra = line;
     env.start_error = err;
     init(&env);
@@ -31,13 +31,13 @@ int main() {
     print_target(get_bd(env)->target);
     putchar('\n');
 
-    bool need_arithm = false;
+    bool need_arithm = true;
     datatype_t datatype = DT_UINT;
     size_t bit_size = 64;
     size_t bit_size_add = 64;
 
-    bool exists;
-    bool can_be_used;
+    bool exists = false;
+    bool can_be_used = false;
     size_t similar_count;
     reg_with_owner_internal_t *similar;
     reg_with_owner_internal_t reg = get_best_reg(env,

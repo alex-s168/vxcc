@@ -50,4 +50,7 @@ static backend_data_t *get_bd(env_t env) {
     return (backend_data_t *) env.backend_data;
 }
 
+// assert only meant for code readability
+#define ASSERT(v) do {} while (0)
+
 #endif //VXCC_X86_BACKEND_H
