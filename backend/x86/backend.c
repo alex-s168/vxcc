@@ -9,26 +9,24 @@ void emit_str(env_t env, char *str) {
 
 static void parseTargetStr(env_t *env, backend_data_t *bd) {
     /* extra target str */
-    char *last = 0;
     char *cstr = env->target_str_extra;
+    char *last = cstr;
     while (*cstr != '\0') {
-        if (cstr[0] == ';') {
-            cstr[0] = '\0';
-
-            if (!strcmp(last, "fpu")) {
+        if (*cstr == ';') {
+            if (strstr(last, "fpu;") == last) {
                 bd->target.is_fpu = true;
             }
-            else if (!strcmp(last, "mmx")) {
+            else if (strstr(last, "mmx;") == last) {
                 bd->target.is_mmx = true;
             }
-            else if (!strcmp(last, "mmx+")) {
+            else if (strstr(last, "mmx+;") == last) {
                 bd->target.is_mmxplus = true;
                 bd->target.is_mmx = true;
             }
-            else if (!strcmp(last, "sse1") || !strcmp(last, "sse")) {
+            else if (strstr(last, "sse1;") == last || strstr(last, "sse;") == last) {
                 bd->target.is_sse1 = true;
             }
-            else if (!strcmp(last, "sse2")) {
+            else if (strstr(last, "sse2;") == last) {
                 bd->target.is_sse1 = true;
                 bd->target.is_sse2 = true;
             }

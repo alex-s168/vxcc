@@ -288,6 +288,7 @@ reg_with_owner_internal_t get_best_reg(env_t env,
                 if (reg.owner != NULL)
                     continue;
 
+                *exists = true;
                 *can_be_used = true;
                 bd->regalloc.reg_mmx_used = true;
                 return reg;

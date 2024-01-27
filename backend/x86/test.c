@@ -23,15 +23,18 @@ int main() {
     env_t env = { 0 };
     // char line[1024];
     // scanf("%1023[^\n]", line);
-    char *line = "";
+    char *line = "mmx;";
     env.target_str_extra = line;
     env.start_error = err;
     init(&env);
 
+    print_target(get_bd(env)->target);
+    putchar('\n');
+
     bool need_arithm = false;
     datatype_t datatype = DT_UINT;
-    size_t bit_size = 32;
-    size_t bit_size_add = 32;
+    size_t bit_size = 64;
+    size_t bit_size_add = 64;
 
     bool exists;
     bool can_be_used;

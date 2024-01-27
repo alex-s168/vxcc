@@ -33,4 +33,21 @@ static void assert(env_t env, bool test, char *message) {
     }
 }
 
+static void print_target(target_t tg) {
+    static char *str_true = "true";
+    static char *str_false = "false";
+
+#define ST_BOOL_PT(B) (B ? str_true : str_false)
+    printf("fpu   %s\n", ST_BOOL_PT(tg.is_fpu));
+    printf("mmx   %s\n", ST_BOOL_PT(tg.is_mmx));
+    printf("mmx+  %s\n", ST_BOOL_PT(tg.is_mmxplus));
+    printf("sse1  %s\n", ST_BOOL_PT(tg.is_sse1));
+    printf("sse2  %s\n", ST_BOOL_PT(tg.is_sse2));
+#undef ST_BOOL_PT
+}
+
+static backend_data_t *get_bd(env_t env) {
+    return (backend_data_t *) env.backend_data;
+}
+
 #endif //VXCC_X86_BACKEND_H
