@@ -51,9 +51,9 @@ void emit_loc(env_t env, location_t loc) {
             size_t sp = bd->stackalloc.sp;
             size_t addr = loc.stack.abs_addr;
             if (sp > addr) {
-                sprintf(buf, "ptr [sp - %zu]", sp - addr);
+                sprintf(buf, "ptr [rsp + %zu]", sp - addr); // in code represented as rsp - addr
             } else {
-                sprintf(buf, "ptr [sp + %zu]", addr - sp);
+                sprintf(buf, "ptr [rsp - %zu]", addr - sp); // in code represented as rsp + addr
             }
             emit_str(env, buf);
         }

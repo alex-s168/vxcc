@@ -5,6 +5,7 @@
 #include "../../vxcc_backend.h"
 
 #include <stdbool.h>
+#include <stdlib.h>
 
 void emit_str(env_t env, char *str);
 
@@ -61,8 +62,13 @@ static reg_t get_reg(reg_with_owner_internal_t *reg) {
     };
 }
 
-// assert only meant for code readability and debugging
+// #define DBG
+
+#ifndef DBG
 #define ASSERT(v) do {} while (0)
+#else
+#define ASSERT(v) if (!(v)) { exit(4); }
+#endif
 
 void emit_loc(env_t env, location_t loc);
 

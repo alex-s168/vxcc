@@ -2,14 +2,17 @@
 #include "stackalloc.h"
 #include <stdlib.h>
 
+// TODO: allow allocation between gaps and move to common backend "package"
+
 bool allocate_stack(env_t env,
                     location_t *dest,
                     datatype_t type,
                     size_t bit_size,
                     size_t additional) {
+    backend_data_t *bd = (backend_data_t *) env.backend_data;
 
     stackalloc_state_t *state =
-            &((backend_data_t *) env.backend_data)->stackalloc;
+            &bd->stackalloc;
 
     ASSERT(state->frames_count > 0);
 
@@ -27,7 +30,7 @@ bool allocate_stack(env_t env,
                               sizeof(stackalloc_elem_t) * frame->count);
     frame->elements[where] = (stackalloc_elem_t) {
         .deallocatable = false,
-        .abs_addr = address
+        .byte_size = byte_size
     };
 
     *dest = (location_t) {
@@ -38,7 +41,8 @@ bool allocate_stack(env_t env,
             .additional = additional,
             .backend_data = (void *) where,
             .abs_addr = address,
-        }
+        },
+        .backend_data = bd
     };
 
     return true;
@@ -55,18 +59,18 @@ void deallocate_stack(location_t *loc) {
 
     frame->elements[pos].deallocatable = true;
 
-    size_t i = frame->count - 1;
-    for (; i > 0; i --) {
-        bool d = frame->elements[i].deallocatable;
-        if (!d)
+    size_t to_rem = 0;
+    size_t removed_bytes = 0;
+    while (to_rem < frame->count) {
+        stackalloc_elem_t elem = frame->elements[frame->count - to_rem - 1];
+        if (!elem.deallocatable)
             break;
+        to_rem ++;
+        removed_bytes += elem.byte_size;
     }
 
-    size_t to_rem = frame->count - i;
-
-    ASSERT(to_rem > 0);
-
     frame->count -= to_rem;
+    frame->next_addr -= removed_bytes;
 
     if (to_rem > 16) {
         void *new = realloc(frame->elements,

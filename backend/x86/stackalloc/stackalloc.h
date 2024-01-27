@@ -8,7 +8,7 @@
 
 typedef struct {
     bool deallocatable;
-    size_t abs_addr;
+    size_t byte_size;
 } stackalloc_elem_t;
 
 typedef struct {
