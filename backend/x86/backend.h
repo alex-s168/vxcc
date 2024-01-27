@@ -18,7 +18,7 @@ typedef struct {
     // bool is_3dnow;      // https://refspecs.linuxfoundation.org/AMD-3Dnow.pdf
 } target_t;
 
-#include "regalloc.h"
+#include "regalloc/regalloc.h"
 
 typedef struct {
     target_t target;
