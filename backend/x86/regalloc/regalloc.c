@@ -32,17 +32,17 @@ bool alloc_reg(env_t env,
         return false;
     }
 
-    location_t l = { .type = LT_REG, .reg = get_reg(reg), .backend_data = NULL };
+    location_t l = { .type = LT_REG, .reg = get_reg(reg), .backend_data = env.backend_data };
 
     if (!can_be_used) {
         ASSERT(force);
 
+        reg->owner = dest; // so that allocate_compatible doesn't allocate our register
         location_t *temp = allocate_compatible(&l);
         move(env, temp, &l);
         location_t *old_owner = reg->owner;
         *old_owner = *temp;
         *dest = l;
-        reg->owner = dest;
         return true;
     }
 
@@ -54,6 +54,6 @@ bool alloc_reg(env_t env,
 }
 
 void dealloc_reg(location_t *reg) {
-    reg_with_owner_internal_t *l = (reg_with_owner_internal_t *) reg->reg.backend_data;
+    reg_with_owner_internal_t *l = (reg_with_owner_internal_t *) (reg->reg.backend_data);
     l->owner = NULL;
 }

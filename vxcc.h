@@ -46,7 +46,7 @@ typedef struct {
     datatype_t type;
     size_t bit_size;
     size_t additional;
-    void *abs_addr;         // relative to function call
+    size_t abs_addr;         // relative to function call
 
     void *backend_data;
 } stack_t;

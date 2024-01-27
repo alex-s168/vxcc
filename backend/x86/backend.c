@@ -53,11 +53,14 @@ void init(env_t *env) {
     parseTargetStr(env, bd);
 
     regalloc_init(env);
+    stackalloc_init(env);
 
     emit_str(*env, "  bits 32\n");
 }
 
 void deinit(env_t env) {
+    stackalloc_deinit(env);
+
     backend_data_t *bd = (backend_data_t *) env.backend_data;
     free(bd);
 }

@@ -19,10 +19,12 @@ typedef struct {
 } target_t;
 
 #include "regalloc/regalloc.h"
+#include "stackalloc/stackalloc.h"
 
 typedef struct {
     target_t target;
     regalloc_state_t regalloc;
+    stackalloc_state_t stackalloc;
 } backend_data_t;
 
 static void assert(env_t env, bool test, char *message) {
@@ -59,7 +61,7 @@ static reg_t get_reg(reg_with_owner_internal_t *reg) {
     };
 }
 
-// assert only meant for code readability
+// assert only meant for code readability and debugging
 #define ASSERT(v) do {} while (0)
 
 #endif //VXCC_X86_BACKEND_H
