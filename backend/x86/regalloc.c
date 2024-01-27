@@ -72,10 +72,16 @@ void regalloc_init(env_t *env) {
     }
 }
 
+// TODO: WHEN CALLED: SET MMX_USED TO TRUE IF MMX REG RETURNED AND NOT CAN_BE_USED
 reg_with_owner_internal_t get_best_reg(env_t env,
                                        bool *exists,
                                        /* set to false if all registers that can be considered for the specified ops are in use. (still returns the last register) */
                                        bool *can_be_used,
+
+                                       /* a list of registers with the same properties (can also include the returned reg) */
+                                       size_t *similar_count,
+                                       reg_with_owner_internal_t **similar,
+
                                        bool need_arithm,
                                        datatype_t type,
                                        size_t bit_size,
@@ -135,10 +141,16 @@ reg_with_owner_internal_t get_best_reg(env_t env,
 
             bool t_exists;
             bool t_usable;
+            size_t t_similar_size;
+            reg_with_owner_internal_t *t_similar;
             reg_with_owner_internal_t reg =
-                    get_best_reg(env, &t_exists, &t_usable, false, DT_UINT, bit_size, 0);
+                    get_best_reg(env, &t_exists, &t_usable, &t_similar_size, &t_similar, false, DT_UINT, bit_size, 0);
 
             if (t_exists && t_usable) {
+                *similar = t_similar;
+                *similar_count = t_similar_size;
+                *can_be_used = true;
+                *exists = true;
                 return reg;
             }
         }
@@ -147,10 +159,16 @@ reg_with_owner_internal_t get_best_reg(env_t env,
 
             bool t_exists;
             bool t_usable;
+            size_t t_similar_size;
+            reg_with_owner_internal_t *t_similar;
             reg_with_owner_internal_t reg =
-                    get_best_reg(env, &t_exists, &t_usable, false, DT_VEC_UINT, bit_size, bit_size);
+                    get_best_reg(env, &t_exists, &t_usable, &t_similar_size, &t_similar, false, DT_VEC_UINT, bit_size, bit_size);
 
             if (t_exists && t_usable) {
+                *similar = t_similar;
+                *similar_count = t_similar_size;
+                *can_be_used = true;
+                *exists = true;
                 return reg;
             }
         }
@@ -172,6 +190,9 @@ reg_with_owner_internal_t get_best_reg(env_t env,
     }
 
     if (gpr) {
+        *similar_count = REG_GP_COUNT;
+        *similar = bd->regalloc.reg_gp;
+
         for (size_t i = 0; i < REG_GP_COUNT; i++) {
             reg_with_owner_internal_t reg = bd->regalloc.reg_gp[i];
             if (reg.owner != NULL)
@@ -193,11 +214,14 @@ reg_with_owner_internal_t get_best_reg(env_t env,
     }
 
     if (fpr) {
+        *similar_count = REG_FPU_COUNT;
+        *similar = bd->regalloc.reg_fpu;
+
         if (bd->regalloc.reg_mmx_used) {
-            *can_be_used = false;
-            *exists = true;
             assert(env, bd->regalloc.reg_fpu[0].owner == NULL,
                    "regalloc.c:get_best_reg:(fpr && mmx_used)");
+            *can_be_used = false;
+            *exists = true;
             return bd->regalloc.reg_fpu[0];
         }
 
@@ -218,7 +242,73 @@ reg_with_owner_internal_t get_best_reg(env_t env,
         return bd->regalloc.reg_fpu[0];
     }
 
-    // TODO: vectors
+    reg_with_owner_internal_t *found_but_not_usable = NULL;
+
+    if ((fvr || ivr) && bd->target.is_sse1) {
+        assert(env, additional <= bit_size, "requested vector additional > bit_size");
+
+        // we __can__ fit weird sized values in our vectors, but we can't do math with them
+        if ((additional % 8 != 0 || additional < 8) && need_arithm) {
+            *exists = false;
+            return (reg_with_owner_internal_t) {};
+        }
+
+        *exists = true;
+
+        *similar = bd->regalloc.reg_sse;
+        *similar_count = REG_SSE_COUNT;
+
+        for (size_t i = 0; i < REG_SSE_COUNT; i ++) {
+            reg_with_owner_internal_t reg = bd->regalloc.reg_sse[i];
+            if (reg.owner != NULL)
+                continue;
+
+            *can_be_used = true;
+            return reg;
+        }
+
+        *can_be_used = false;
+        found_but_not_usable = &bd->regalloc.reg_sse[0];
+    }
+
+    if (ivr && bd->target.is_mmx) {
+        // we __can__ fit weird sized values in our vectors, but we can't do math with them
+        if ((additional % 8 != 0 || additional < 8) && need_arithm) {
+            *exists = false;
+            return (reg_with_owner_internal_t) {};
+        }
+
+        if (bd->regalloc.reg_fpu_used) {
+            assert(env, bd->regalloc.reg_mmx[0].owner == NULL,
+                   "regalloc.c:get_best_reg:(ivr && fpu used)");
+        }
+        else {
+            for (size_t i = 0; i < REG_MMX_COUNT; i ++) {
+                reg_with_owner_internal_t reg = bd->regalloc.reg_mmx[i];
+                if (reg.owner != NULL)
+                    continue;
+
+                *can_be_used = true;
+                bd->regalloc.reg_mmx_used = true;
+                return reg;
+            }
+        }
+
+        if (found_but_not_usable == NULL) {
+            found_but_not_usable = &bd->regalloc.reg_mmx[0];
+            *similar = bd->regalloc.reg_mmx;
+            *similar_count = REG_MMX_COUNT;
+        }
+    }
+
+    if (found_but_not_usable != NULL) {
+        *can_be_used = false;
+        *exists = true;
+        return *found_but_not_usable;
+    }
+
+    *exists = false;
+    return (reg_with_owner_internal_t) {};
 }
 
 // TODO: float + mmx problem

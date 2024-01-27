@@ -43,7 +43,13 @@ reg_t alloc_reg_force(env_t env,
 
 reg_with_owner_internal_t get_best_reg(env_t env,
                                        bool *exists,
+        /* set to false if all registers that can be considered for the specified ops are in use. (still returns the last register) */
                                        bool *can_be_used,
+
+        /* a list of registers with the same properties (can also include the returned reg) */
+                                       size_t *similar_count,
+                                       reg_with_owner_internal_t **similar,
+
                                        bool need_arithm,
                                        datatype_t type,
                                        size_t bit_size,
