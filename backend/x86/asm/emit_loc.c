@@ -49,7 +49,7 @@ void emit_loc(env_t env, location_t loc) {
             emit_size(env, loc.stack.bit_size);
             char buf[35];
             size_t sp = bd->stackalloc.sp;
-            size_t addr = loc.stack.abs_addr;
+            size_t addr = loc.stack.abs_addr + loc.stack.bit_size / 8;
             if (sp > addr) {
                 sprintf(buf, "ptr [rsp + %zu]", sp - addr); // in code represented as rsp - addr
             } else {

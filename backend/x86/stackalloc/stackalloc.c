@@ -20,8 +20,7 @@ bool allocate_stack(env_t env,
 
     size_t where = frame->count ++;
 
-    size_t bit_size_8 = up8(bit_size);
-    size_t byte_size = bit_size_8 / 8;
+    size_t byte_size = up2(up8(bit_size) / 8);
 
     size_t address = frame->next_addr;
     frame->next_addr += byte_size;
@@ -37,7 +36,7 @@ bool allocate_stack(env_t env,
         .type = LT_STACK,
         .stack = (stack_t) {
             .type = type,
-            .bit_size = bit_size_8,
+            .bit_size = byte_size * 8,
             .additional = additional,
             .backend_data = (void *) where,
             .abs_addr = address,

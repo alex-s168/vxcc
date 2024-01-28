@@ -74,12 +74,15 @@ void emit_loc(env_t env, location_t loc);
 
 static inline
 size_t up8(size_t v) {
-    if (v == 0) {
-        return 0;
-    }
-
     v --;
     v += 8 - (v % 8);
+    return v;
+}
+
+static inline
+size_t up2(size_t v) {
+    v --;
+    v += 2 - (v % 2);
     return v;
 }
 
